@@ -2,29 +2,51 @@
 
 const hyfUrl = "https://api.github.com/orgs/HackYourFuture/repos?per_page=100";
 
-function fetchJSON(url, cb) {
+function fetchJSON(url) {
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", url);
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
 
-    xhr.responseType = "json";
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-            if (xhr.status < 400) {
-                cb(null, xhr.response);
-            } else {
-                cb(new Error(xhr.statusText));
+        xhr.responseType = "json";
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status < 400) {
+                    resolve(xhr.response);
+                } else {
+                    reject(new Error(xhr.statusText));
+                }
             }
-        }
-    };
-    xhr.send();
+        };
+        xhr.send();
+    });
+}
+
+fetchJSON(hyfUrl)
+    .then(data => renderData(data))
+    .catch(err => renderError(err));
+
+function renderData(data) {
+    console.log(data);
+}
+
+function renderError(err) {
+    console.error(err.message);
 }
 
 // 04 Function to create and append HTML
 
-function createAndAppend(tagname, parent) {
-    const elem = document.createElement(tagname);
+function createAndAppend(name, parent, options = {}) {
+    const elem = document.createElement(name);
     parent.appendChild(elem);
+    Object.keys(options).forEach(key => {
+        const value = options[key];
+        if (key === 'html') {
+            elem.innerHTML = value;
+        } else {
+            elem.setAttribute(key, value);
+        }
+    });
     return elem;
 }
 

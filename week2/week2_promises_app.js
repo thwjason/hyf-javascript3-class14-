@@ -1,6 +1,6 @@
 'use strict';
 
-const hyfUrl = "https://api.github.com/orgs/HackYourFuture/repos?per_page=100";
+const hyfUrl = "https://api.github.com/orgsx/HackYourFuture/repos?per_page=100";
 
 function fetchJSON(url) {
 
@@ -20,18 +20,6 @@ function fetchJSON(url) {
         };
         xhr.send();
     });
-}
-
-fetchJSON(hyfUrl)
-    .then(data => renderData(data))
-    .catch(err => renderError(err));
-
-function renderData(data) {
-    console.log(data);
-}
-
-function renderError(err) {
-    console.error(err.message);
 }
 
 // 04 Function to create and append HTML
@@ -133,39 +121,44 @@ function renderRepository(repo) {
     const td8 = createAndAppend("td", tr4);
     td8.innerHTML = repo.updated_at;
 
-    fetchJSON(repo.contributors_url, (error, contributors) => {
-        if (error !== null) {
-            console.error(error.message);
-        } else {
-            console.log('contributors', contributors);
-            const ul = document.getElementById("contributorsContainer");
-            ul.innerHTML = "";
+    fetchJSON(repo.contributors_url)
+        .then(data => renderData(data))
+        .catch(err => renderError(err));
 
-            contributors.forEach(contributor => {
-                const li = createAndAppend("li", ul);
-                const img = createAndAppend("img", li);
-                img.setAttribute("src", contributor.avatar_url);
-                const p1 = createAndAppend("p", li);
-                p1.innerHTML = contributor.login;
-                const p2 = createAndAppend("p", li);
-                p2.innerHTML = contributor.contributions;
-            });
-        }
-    });
+    function renderError(err) {
+        console.log(err.message);
+        return err.message;
+    }
+
+    function renderData(contributors) {
+        const ul = document.getElementById("contributorsContainer");
+        ul.innerHTML = "";
+        contributors.forEach(contributor => {
+            const li = createAndAppend("li", ul);
+            const img = createAndAppend("img", li);
+            img.setAttribute("src", contributor.avatar_url);
+            const p1 = createAndAppend("p", li);
+            p1.innerHTML = contributor.login;
+            const p2 = createAndAppend("p", li);
+            p2.innerHTML = contributor.contributions;
+        });
+    }
 }
+
 
 function main() {
 
     renderFixedHeader();
 
     //06 Getting select box rendered.
-    fetchJSON(hyfUrl, (error, data) => {
-        if (error !== null) {
-            console.error(error.message);
-        } else {
-            renderSelect(data);
-        }
-    });
+    fetchJSON(hyfUrl)
+        .then(data => renderSelect(data))
+        .catch(err => renderError(err));
+
+    function renderError(err) {
+        console.log(err.message);
+        return err.message;
+    }
 }
 
 window.onload = main;

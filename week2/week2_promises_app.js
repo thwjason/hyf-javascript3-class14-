@@ -1,6 +1,6 @@
 'use strict';
 
-const hyfUrl = "https://api.github.com/orgsx/HackYourFuture/repos?per_page=100";
+const hyfUrl = "https://api.github.com/orgs/HackYourFuture/repos?per_page=100";
 
 function fetchJSON(url) {
 
@@ -14,7 +14,7 @@ function fetchJSON(url) {
                 if (xhr.status < 400) {
                     resolve(xhr.response);
                 } else {
-                    reject(new Error(xhr.statusText));
+                    reject(new Error(`Network Error: ${xhr.statusText} - ${xhr.status}`));
                 }
             }
         };
@@ -122,27 +122,26 @@ function renderRepository(repo) {
     td8.innerHTML = repo.updated_at;
 
     fetchJSON(repo.contributors_url)
-        .then(data => renderData(data))
-        .catch(err => renderError(err));
-
-    function renderError(err) {
-        console.log(err.message);
-        return err.message;
-    }
-
-    function renderData(contributors) {
-        const ul = document.getElementById("contributorsContainer");
-        ul.innerHTML = "";
-        contributors.forEach(contributor => {
-            const li = createAndAppend("li", ul);
-            const img = createAndAppend("img", li);
-            img.setAttribute("src", contributor.avatar_url);
-            const p1 = createAndAppend("p", li);
-            p1.innerHTML = contributor.login;
-            const p2 = createAndAppend("p", li);
-            p2.innerHTML = contributor.contributions;
+        .then(contributors => {
+            const ul = document.getElementById("contributorsContainer");
+            ul.innerHTML = "";
+            contributors.forEach(contributor => {
+                const li = createAndAppend("li", ul);
+                const img = createAndAppend("img", li);
+                img.setAttribute("src", contributor.avatar_url);
+                const p1 = createAndAppend("p", li);
+                p1.innerHTML = contributor.login;
+                const p2 = createAndAppend("p", li);
+                p2.innerHTML = contributor.contributions;
+            });
+        })
+        .catch(err => {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            createAndAppend('h1', container, { html: err.message });
+            console.log(err.message);
+            return err.message;
         });
-    }
 }
 
 
@@ -153,12 +152,13 @@ function main() {
     //06 Getting select box rendered.
     fetchJSON(hyfUrl)
         .then(data => renderSelect(data))
-        .catch(err => renderError(err));
-
-    function renderError(err) {
-        console.log(err.message);
-        return err.message;
-    }
+        .catch(err => {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            createAndAppend('h1', container, { html: err.message });
+            console.log(err.message);
+            return err.message;
+        });
 }
 
 window.onload = main;

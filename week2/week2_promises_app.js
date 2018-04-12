@@ -38,6 +38,11 @@ function createAndAppend(name, parent, options = {}) {
     return elem;
 }
 
+function renderError(err) {
+    const container = document.getElementById('container');
+    container.innerHTML = '';
+    createAndAppend('h1', container, { html: err.message });
+}
 // 05 Get name from specific repository
 
 function renderSelect(repositories) {
@@ -135,13 +140,7 @@ function renderRepository(repo) {
                 p2.innerHTML = contributor.contributions;
             });
         })
-        .catch(err => {
-            const container = document.getElementById('container');
-            container.innerHTML = '';
-            createAndAppend('h1', container, { html: err.message });
-            console.log(err.message);
-            return err.message;
-        });
+        .catch(err => renderError(err));
 }
 
 
@@ -152,13 +151,7 @@ function main() {
     //06 Getting select box rendered.
     fetchJSON(hyfUrl)
         .then(data => renderSelect(data))
-        .catch(err => {
-            const container = document.getElementById('container');
-            container.innerHTML = '';
-            createAndAppend('h1', container, { html: err.message });
-            console.log(err.message);
-            return err.message;
-        });
+        .catch(err => renderError(err));
 }
 
 window.onload = main;

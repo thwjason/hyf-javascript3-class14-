@@ -98,60 +98,66 @@ function renderFixedHeader() {
 
 // 08 function to render database
 
-function renderRepository(repo) {
-    const tBody = document.getElementById("tBody");
-    tBody.innerHTML = "";
+async function renderRepository(repo) {
+    try {
+        const tBody = document.getElementById("tBody");
+        tBody.innerHTML = "";
 
-    const tr1 = createAndAppend("tr", tBody);
-    const td1 = createAndAppend("td", tr1);
-    td1.innerHTML = "Repository:";
-    const td2 = createAndAppend("td", tr1);
-    td2.innerHTML = repo.name;
+        const tr1 = createAndAppend("tr", tBody);
+        const td1 = createAndAppend("td", tr1);
+        td1.innerHTML = "Repository:";
+        const td2 = createAndAppend("td", tr1);
+        td2.innerHTML = repo.name;
 
-    const tr2 = createAndAppend("tr", tBody);
-    const td3 = createAndAppend("td", tr2);
-    td3.innerHTML = "Description:";
-    const td4 = createAndAppend("td", tr2);
-    td4.innerHTML = repo.description;
+        const tr2 = createAndAppend("tr", tBody);
+        const td3 = createAndAppend("td", tr2);
+        td3.innerHTML = "Description:";
+        const td4 = createAndAppend("td", tr2);
+        td4.innerHTML = repo.description;
 
-    const tr3 = createAndAppend("tr", tBody);
-    const td5 = createAndAppend("td", tr3);
-    td5.innerHTML = "Forks:";
-    const td6 = createAndAppend("td", tr3);
-    td6.innerHTML = repo.forks;
+        const tr3 = createAndAppend("tr", tBody);
+        const td5 = createAndAppend("td", tr3);
+        td5.innerHTML = "Forks:";
+        const td6 = createAndAppend("td", tr3);
+        td6.innerHTML = repo.forks;
 
-    const tr4 = createAndAppend("tr", tBody);
-    const td7 = createAndAppend("td", tr4);
-    td7.innerHTML = "Updated:";
-    const td8 = createAndAppend("td", tr4);
-    td8.innerHTML = repo.updated_at;
+        const tr4 = createAndAppend("tr", tBody);
+        const td7 = createAndAppend("td", tr4);
+        td7.innerHTML = "Updated:";
+        const td8 = createAndAppend("td", tr4);
+        td8.innerHTML = repo.updated_at;
 
-    fetchJSON(repo.contributors_url)
-        .then(contributors => {
-            const ul = document.getElementById("contributorsContainer");
-            ul.innerHTML = "";
-            contributors.forEach(contributor => {
-                const li = createAndAppend("li", ul);
-                const img = createAndAppend("img", li);
-                img.setAttribute("src", contributor.avatar_url);
-                const p1 = createAndAppend("p", li);
-                p1.innerHTML = contributor.login;
-                const p2 = createAndAppend("p", li);
-                p2.innerHTML = contributor.contributions;
-            });
-        })
-        .catch(err => renderError(err));
+        const contributors = await fetchJSON(repo.contributors_url);
+
+        const ul = document.getElementById("contributorsContainer");
+        ul.innerHTML = "";
+        contributors.forEach(contributor => {
+            const li = createAndAppend("li", ul);
+            const img = createAndAppend("img", li);
+            img.setAttribute("src", contributor.avatar_url);
+            const p1 = createAndAppend("p", li);
+            p1.innerHTML = contributor.login;
+            const p2 = createAndAppend("p", li);
+            p2.innerHTML = contributor.contributions;
+        });
+    }
+    catch (error) {
+        renderError(error);
+    }
 }
 
 
-function main() {
+async function main() {
+    try {
+        renderFixedHeader();
 
-    renderFixedHeader();
-
-    //06 Getting select box rendered.
-    fetchJSON(hyfUrl)
-        .then(data => renderSelect(data))
-        .catch(err => renderError(err));
+        //06 Getting select box rendered.
+        const data = await fetchJSON(hyfUrl);
+        renderSelect(data);
+    }
+    catch (err) {
+        renderError(err);
+    }
 }
 
 window.onload = main;

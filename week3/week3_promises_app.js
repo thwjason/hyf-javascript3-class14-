@@ -70,7 +70,7 @@ function renderFixedHeader() {
     header.setAttribute("class", "header");
     root.appendChild(header);
 
-    const label = document.createElement("span");
+    const label = document.createElement("div");
     label.setAttribute("class", "select-label");
     label.textContent = "Select Repositories: ";
     header.appendChild(label);
